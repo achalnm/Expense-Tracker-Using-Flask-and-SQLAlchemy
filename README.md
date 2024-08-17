@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker Using Flask and SQLAlchemy</title>
 </head>
 <body>
     <h1>Expense Tracker Using Flask and SQLAlchemy</h1>
@@ -18,7 +17,7 @@
     <h2>Setup Instructions</h2>
     <ol>
         <li><strong>Clone the Repository:</strong>
-            <pre><code>git clone https://github.com/yourusername/expense-tracker-flask-sqlalchemy.git</code></pre>
+            <pre><code>git clone https://github.com/achalnm/expense-tracker-flask-sqlalchemy.git</code></pre>
         </li>
         <li><strong>Navigate to the Project Directory:</strong>
             <pre><code>cd expense-tracker-flask-sqlalchemy</code></pre>
@@ -37,15 +36,15 @@
     <pre><code>
 expense_tracker/
 │
-├── app.py                   # Main application file
-├── models.py                # Database models
-├── requirements.txt         # Project dependencies
+├── app.py                   
+├── models.py                
+├── requirements.txt         
 ├── static/
 │   └── css/
-│       └── style.css        # Custom styles
+│       └── style.css        
 └── templates/
-    ├── home.html            # Main page
-    └── report.html          # Reports page
+    ├── home.html            
+    └── report.html          
     </code></pre>
     <h2>Social Links</h2>
     <p>Developed by Achal N</p>
