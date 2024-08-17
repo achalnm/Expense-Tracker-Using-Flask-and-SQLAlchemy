@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Reports</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Expense Reports</h1>
+        <nav>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('reports') }}">View Reports</a>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <h2>Summary</h2>
+            <ul>
+                {% for entry in report_data %}
+                <li>{{ entry.Category }}: ${{ entry.Amount }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Expense Tracker. Created by Achal N.</p>
+        <div class="social-links">
+            <a href="https://github.com/achalnm" target="_blank">GitHub</a>
+            <a href="https://www.linkedin.com/in/achal-n-35153821b/" target="_blank">LinkedIn</a>
+            <a href="https://www.instagram.com/achal_n26/" target="_blank">Instagram</a>
+        </div>
+    </footer>
+</body>
+</html>
