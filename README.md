@@ -1,6 +1,6 @@
 # Expense Tracker
 
-This started as a side project in my first year of BE Computer Science at Jyothy Institute of Technology, VTU. I wanted something simple to track where my money was going each month, so I built it.
+This started as a side project in my first year of BE Computer Science at Jyothy Institute of Technology, VTU. I wanted something simple to track where my money was going each month, so I built a basic version. I came back to it recently and rebuilt it with a new UI, cleaning up the code, adding input validation, tests, and the budget and reports features.
 
 ## Screenshots
 
