@@ -40,12 +40,7 @@ def home():
         db.session.commit()
         return redirect(url_for('home'))
 
-    category_filter = request.args.get('category', '').strip()
-    if category_filter:
-        expenses = Expense.query.filter_by(category=category_filter).order_by(Expense.date.desc()).all()
-    else:
-        expenses = Expense.query.order_by(Expense.date.desc()).all()
-
+    expenses = Expense.query.order_by(Expense.date.desc()).all()
     categories = [row[0] for row in db.session.query(Expense.category).distinct().all()]
 
     now = datetime.now(timezone.utc)
@@ -74,7 +69,6 @@ def home():
         'home.html',
         expenses=expenses,
         categories=categories,
-        category_filter=category_filter,
         budget_amount=budget_amount,
         monthly_spent=monthly_spent,
         budget_pct=budget_pct,
@@ -119,6 +113,14 @@ def settings():
         return redirect(url_for('settings'))
 
     return render_template('settings.html', budget=budget)
+
+
+@app.route('/expenses/clear', methods=['POST'])
+def clear_expenses():
+    db.session.query(Expense).delete()
+    db.session.commit()
+    flash('All expenses cleared.', 'success')
+    return redirect(url_for('settings'))
 
 
 if __name__ == '__main__':

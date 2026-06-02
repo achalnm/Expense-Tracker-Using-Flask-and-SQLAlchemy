@@ -1,134 +1,115 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">Expense Tracker</a>
-        <div class="navbar-nav ms-auto flex-row gap-3">
-            <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
-            <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
-        </div>
+{% extends 'base.html' %}
+{% block title %}HOME — EXP_TRACKER{% endblock %}
+
+{% block content %}
+
+<form class="add-form" method="POST" action="{{ url_for('home') }}">
+    <input type="text"
+           class="input-field"
+           name="category"
+           placeholder="category"
+           maxlength="50"
+           autocomplete="off">
+    <input type="text"
+           class="input-field input-amount"
+           name="amount"
+           placeholder="0.00"
+           autocomplete="off">
+    <input type="text"
+           class="input-field input-desc"
+           name="description"
+           placeholder="description (optional)"
+           maxlength="200"
+           autocomplete="off">
+    <button type="submit" class="btn-primary">ADD</button>
+</form>
+
+<div class="divider"></div>
+
+{% if budget_amount > 0 %}
+<div class="budget-row">
+    <span class="budget-label">BUDGET</span>
+    <div class="budget-track">
+        <div class="budget-fill" style="width: {{ budget_pct }}%; background: {{ '#ff3b3b' if bar_color == 'danger' else ('#ff9100' if bar_color == 'warning' else '#00c853') }};"></div>
     </div>
-</nav>
-
-<div class="container mt-4">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    {% if budget_amount > 0 %}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="d-flex justify-content-between mb-1">
-                <span class="fw-semibold">Monthly Budget: ${{ "%.2f"|format(budget_amount) }}</span>
-                <span class="text-muted">Spent: ${{ "%.2f"|format(monthly_spent) }} &nbsp;({{ "%.0f"|format(budget_pct) }}%)</span>
-            </div>
-            <div class="progress" style="height: 12px;">
-                <div class="progress-bar bg-{{ bar_color }}"
-                     role="progressbar"
-                     style="width: {{ budget_pct }}%"
-                     aria-valuenow="{{ budget_pct }}"
-                     aria-valuemin="0"
-                     aria-valuemax="100">
-                </div>
-            </div>
-            {% if monthly_spent > budget_amount %}
-            <small class="text-danger">Over budget by ${{ "%.2f"|format(monthly_spent - budget_amount) }}</small>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
-
-    <div class="card mb-4">
-        <div class="card-header">Add New Expense</div>
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('home') }}">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label for="category" class="form-label">Category</label>
-                        <input type="text" class="form-control" id="category" name="category" maxlength="50" required>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="amount" class="form-label">Amount ($)</label>
-                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required>
-                    </div>
-                    <div class="col-md-5">
-                        <label for="description" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="description" name="description" maxlength="200">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">Add</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">Expenses</h5>
-        <form method="GET" action="{{ url_for('home') }}" class="d-flex gap-2">
-            <select name="category" class="form-select form-select-sm" style="width: auto;">
-                <option value="">All Categories</option>
-                {% for cat in categories %}
-                <option value="{{ cat }}" {% if cat == category_filter %}selected{% endif %}>{{ cat }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="btn btn-sm btn-outline-secondary">Filter</button>
-            {% if category_filter %}
-            <a href="{{ url_for('home') }}" class="btn btn-sm btn-outline-danger">Clear</a>
-            {% endif %}
-        </form>
-    </div>
-
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Date</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th class="text-end">Amount</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for expense in expenses %}
-                <tr>
-                    <td class="text-nowrap">{{ expense.date.strftime('%Y-%m-%d') if expense.date else '' }}</td>
-                    <td>{{ expense.category }}</td>
-                    <td class="text-muted">{{ expense.description or '' }}</td>
-                    <td class="text-end">${{ "%.2f"|format(expense.amount) }}</td>
-                    <td class="text-end">
-                        <form method="POST"
-                              action="{{ url_for('delete_expense', expense_id=expense.id) }}"
-                              onsubmit="return confirm('Delete this expense?')">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-4">No expenses found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="budget-amounts">
+        <span class="{{ 'budget-spent-over' if bar_color == 'danger' else ('budget-spent-warn' if bar_color == 'warning' else 'budget-spent-ok') }}">${{ "%.2f"|format(monthly_spent) }}</span>
+        <span class="budget-sep">/</span>
+        <span class="budget-limit">${{ "%.2f"|format(budget_amount) }}</span>
     </div>
 </div>
+{% endif %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<div class="filter-row">
+    <button class="filter-btn active" data-filter="ALL" onclick="applyFilter(this)">ALL</button>
+    {% for cat in categories %}
+    <button class="filter-btn" data-filter="{{ cat }}" onclick="applyFilter(this)">{{ cat.upper() }}</button>
+    {% endfor %}
+</div>
+
+<table class="exp-table" id="exp-table">
+    <thead>
+        <tr>
+            <th>DATE</th>
+            <th>CATEGORY</th>
+            <th>DESCRIPTION</th>
+            <th class="th-right">AMOUNT</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="exp-tbody">
+        {% for expense in expenses %}
+        <tr class="expense-row"
+            data-category="{{ expense.category }}"
+            data-amount="{{ expense.amount }}">
+            <td class="col-date">{{ expense.date.strftime('%d %b %y').upper() if expense.date else '—' }}</td>
+            <td><span class="cat-tag">{{ expense.category.upper() }}</span></td>
+            <td class="col-desc">{{ (expense.description or '')[:40] }}{% if (expense.description or '')|length > 40 %}…{% endif %}</td>
+            <td class="col-amount-cell"><span class="dollar-sign">$</span>{{ "%.2f"|format(expense.amount) }}</td>
+            <td class="col-del-cell">
+                <form method="POST"
+                      action="{{ url_for('delete_expense', expense_id=expense.id) }}"
+                      style="display:inline">
+                    <button type="submit" class="btn-del">DEL</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr id="no-data-row">
+            <td colspan="5" class="empty-row">no expenses yet</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="table-footer">
+    <span class="total-label">TOTAL</span>
+    <span class="total-amount" id="visible-total">${{ "%.2f"|format(expenses | sum(attribute='amount')) }}</span>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function applyFilter(btn) {
+        var filter = btn.dataset.filter;
+
+        document.querySelectorAll('.filter-btn').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.filter === filter);
+        });
+
+        var total = 0;
+        var visible = 0;
+        document.querySelectorAll('.expense-row').forEach(function(row) {
+            var show = filter === 'ALL' || row.dataset.category === filter;
+            row.style.display = show ? '' : 'none';
+            if (show) {
+                total += parseFloat(row.dataset.amount) || 0;
+                visible++;
+            }
+        });
+
+        document.getElementById('visible-total').textContent = '$' + total.toFixed(2);
+    }
+</script>
+{% endblock %}

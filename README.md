@@ -2,10 +2,21 @@
 
 This was a personal side project built during the final year of a Bachelor of Engineering in Computer Science at Jyothy Institute of Technology, VTU, Bangalore. It started as a way to track daily spending and grew into a small but complete web app.
 
+## Screenshots
+
+![Home page](screenshots/home.png)
+*Home page with expense list, category filter, and running total*
+
+![Reports page](screenshots/reports.png)
+*Reports page showing spending by category and by month*
+
+![Settings page](screenshots/settings.png)
+*Settings page with monthly budget configuration*
+
 ## Features
 
 - Add and delete expenses by category
-- Monthly budget tracking with a visual progress bar (green under 80%, amber at 80-99%, red when over budget)
+- Monthly budget tracking with a progress bar (green under 80%, amber at 80-99%, red when over)
 - Category and monthly spending reports
 - Category filter on the home page
 - Input validation on all form submissions
@@ -19,7 +30,6 @@ This was a personal side project built during the final year of a Bachelor of En
 | SQLAlchemy | ORM and database access |
 | SQLite | Database |
 | pandas | Report aggregation |
-| Bootstrap 5 | Frontend styling |
 
 ## Setup
 

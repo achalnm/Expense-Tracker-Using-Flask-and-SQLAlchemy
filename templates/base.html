@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EXP_TRACKER{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 0;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #f0f0f0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            padding-top: 76px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; }
+
+        button, input, textarea, select {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 48px;
+            background: #111111;
+            border-bottom: 1px solid #222222;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 1000;
+        }
+
+        .topbar-brand {
+            color: #e8ff00;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            font-size: 13px;
+        }
+
+        .topbar-nav {
+            display: flex;
+            gap: 32px;
+        }
+
+        .topbar-nav a {
+            color: #999999;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 11px;
+            transition: opacity 150ms;
+        }
+
+        .topbar-nav a:hover,
+        .topbar-nav a.active {
+            color: #f0f0f0;
+        }
+
+        .statusbar {
+            position: fixed;
+            top: 48px; left: 0; right: 0;
+            height: 28px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #222222;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 1000;
+            color: #aaaaaa;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+        }
+
+        .flash-container {
+            margin-bottom: 32px;
+        }
+
+        .flash {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            margin-bottom: 4px;
+            border-left: 3px solid;
+            font-size: 12px;
+        }
+
+        .flash-danger, .flash-error {
+            background: #1a0a0a;
+            border-left-color: #ff3b3b;
+            color: #ff6060;
+        }
+
+        .flash-success {
+            background: #0a1a0a;
+            border-left-color: #00c853;
+            color: #00c853;
+        }
+
+        .flash-warning {
+            background: #1a1000;
+            border-left-color: #ff9100;
+            color: #ff9100;
+        }
+
+        .flash-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            font-size: 16px;
+            line-height: 1;
+            opacity: 0.5;
+            padding: 0 0 0 16px;
+            transition: opacity 150ms;
+        }
+
+        .flash-close:hover { opacity: 1; }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #444444;
+            margin: 24px 0;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .input-field {
+            background: #1a1a1a;
+            border: 1px solid #555555;
+            color: #f0f0f0;
+            font-size: 13px;
+            padding: 8px 12px;
+            outline: none;
+            flex: 1;
+            min-width: 0;
+            transition: opacity 150ms;
+        }
+
+        .input-field::placeholder { color: #888888; }
+        .input-field:focus { border-color: #888888; }
+
+        .input-amount {
+            flex: 0 0 120px;
+            text-align: right;
+        }
+
+        .input-desc { flex: 2; }
+
+        .btn-primary {
+            background: transparent;
+            border: 1px solid #e8ff00;
+            color: #e8ff00;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            padding: 8px 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 150ms;
+        }
+
+        .btn-primary:hover {
+            background: #e8ff00;
+            color: #0a0a0a;
+        }
+
+        .btn-del {
+            background: none;
+            border: none;
+            color: #999999;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            padding: 4px 0;
+            cursor: pointer;
+            transition: opacity 150ms;
+        }
+
+        .btn-del:hover { color: #ff3b3b; }
+
+        .budget-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .budget-label {
+            color: #aaaaaa;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            min-width: 56px;
+        }
+
+        .budget-track {
+            flex: 1;
+            height: 2px;
+            background: #555555;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .budget-fill {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+        }
+
+        .budget-amounts {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .budget-spent-ok   { color: #e8ff00; }
+        .budget-spent-warn { color: #ff9100; }
+        .budget-spent-over { color: #ff3b3b; }
+        .budget-sep        { color: #aaaaaa; }
+        .budget-limit      { color: #cccccc; }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .filter-btn {
+            background: none;
+            border: none;
+            color: #aaaaaa;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            padding: 4px 12px 4px 0;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 150ms;
+        }
+
+        .filter-btn:hover { color: #cccccc; }
+        .filter-btn.active { color: #e8ff00; }
+
+        .exp-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .exp-table thead th {
+            color: #999999;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            font-weight: 400;
+            text-transform: uppercase;
+            padding: 0 16px 8px 0;
+            text-align: left;
+            border-bottom: 1px solid #444444;
+        }
+
+        .exp-table thead th.th-right { text-align: right; }
+        .exp-table thead th:last-child { padding-right: 0; }
+
+        .exp-table tbody tr {
+            border-bottom: 1px solid #333333;
+        }
+
+        .exp-table tbody tr:hover { background: #1e1e1e; }
+
+        .exp-table td {
+            padding: 10px 16px 10px 0;
+            vertical-align: middle;
+        }
+
+        .exp-table td:last-child { padding-right: 0; }
+
+        .col-date {
+            color: #bbbbbb;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .cat-tag {
+            display: inline-block;
+            background: #222222;
+            border: 1px solid #555555;
+            padding: 2px 8px;
+            color: #dddddd;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .col-desc {
+            color: #bbbbbb;
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .col-amount-cell {
+            text-align: right;
+            white-space: nowrap;
+            color: #f0f0f0;
+            font-weight: 600;
+        }
+
+        .dollar-sign {
+            color: #aaaaaa;
+            font-weight: 400;
+        }
+
+        .col-del-cell {
+            text-align: right;
+            width: 44px;
+        }
+
+        .empty-row {
+            color: #aaaaaa;
+            padding: 24px 0;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #444444;
+        }
+
+        .total-label {
+            color: #aaaaaa;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+        }
+
+        .total-amount {
+            color: #e8ff00;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .section-header {
+            color: #aaaaaa;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 400;
+            border-bottom: 1px solid #444444;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .section-header.danger { border-bottom-color: #ff3b3b; }
+
+        .report-section { margin-bottom: 40px; }
+
+        .mini-bar {
+            display: inline-block;
+            width: 80px;
+            height: 8px;
+            background: #2a2a2a;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+
+        .mini-bar-fill {
+            display: block;
+            height: 100%;
+            background: #666666;
+        }
+
+        .text-up      { color: #ff3b3b; }
+        .text-down    { color: #00c853; }
+        .text-neutral { color: #aaaaaa; }
+
+        .settings-col { max-width: 400px; }
+
+        .inline-form {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .field-hint {
+            color: #aaaaaa;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .danger-zone { margin-top: 40px; }
+
+        .btn-danger {
+            background: transparent;
+            border: 1px solid #ff3b3b;
+            color: #ff3b3b;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            padding: 8px 20px;
+            cursor: pointer;
+            transition: opacity 150ms;
+        }
+
+        .btn-danger:hover { opacity: 0.7; }
+
+        .confirm-area {
+            display: none;
+            margin-top: 14px;
+            font-size: 12px;
+            color: #bbbbbb;
+        }
+
+        .confirm-area p { margin-bottom: 10px; }
+
+        .confirm-btns {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .btn-confirm {
+            background: none;
+            border: none;
+            color: #ff3b3b;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 0;
+            transition: opacity 150ms;
+        }
+
+        .btn-confirm:hover { opacity: 0.7; }
+
+        .btn-cancel {
+            background: none;
+            border: none;
+            color: #aaaaaa;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 0;
+            transition: opacity 150ms;
+        }
+
+        .btn-cancel:hover { color: #cccccc; }
+
+        @media (max-width: 768px) {
+            .topbar    { padding: 0 20px; }
+            .statusbar { padding: 0 20px; }
+            .main-content { padding: 20px; }
+            .add-form { flex-direction: column; }
+            .input-amount { flex: 1; text-align: left; }
+            .input-desc   { flex: 1; }
+            .topbar-nav { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="topbar">
+    <span class="topbar-brand">EXP_TRACKER</span>
+    <nav class="topbar-nav">
+        <a href="{{ url_for('home') }}"     class="{{ 'active' if request.endpoint == 'home' else '' }}">HOME</a>
+        <a href="{{ url_for('reports') }}"  class="{{ 'active' if request.endpoint == 'reports' else '' }}">REPORTS</a>
+        <a href="{{ url_for('settings') }}" class="{{ 'active' if request.endpoint in ['settings', 'clear_expenses'] else '' }}">SETTINGS</a>
+    </nav>
+</header>
+
+<div class="statusbar">
+    <span id="status-date"></span>
+    <span id="status-clock"></span>
+</div>
+
+<main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<script>
+    (function () {
+        var MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        function pad(n) { return String(n).padStart(2, '0'); }
+        function tick() {
+            var now = new Date();
+            document.getElementById('status-date').textContent = MONTHS[now.getMonth()] + ' ' + pad(now.getDate()) + ' ' + now.getFullYear();
+            document.getElementById('status-clock').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+        }
+        tick();
+        setInterval(tick, 1000);
+    })();
+</script>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

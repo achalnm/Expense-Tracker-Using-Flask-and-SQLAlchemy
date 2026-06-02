@@ -9,3 +9,5 @@ env/
 *.egg-info/
 .DS_Store
 test_*.db
+flask_run.log
+.dist/
