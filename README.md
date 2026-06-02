@@ -1,6 +1,6 @@
 # Expense Tracker
 
-This was a personal side project built during the final year of a Bachelor of Engineering in Computer Science at Jyothy Institute of Technology, VTU, Bangalore. It started as a way to track daily spending and grew into a small but complete web app.
+This was a personal side project built during the first year of a Bachelor of Engineering in Computer Science at Jyothy Institute of Technology, VTU, Bangalore. It started as a way to track daily spending and grew into a small but complete web app.
 
 ## Features
 
